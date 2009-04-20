@@ -1,5 +1,9 @@
 PROGRAM = zenzibar
 
+LOCAL_LIB_DIR = lib
+
+LOCAL_BUILD_DIR = build
+
 CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0)
 
 LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
@@ -8,21 +12,21 @@ LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 all: $(PROGRAM)
 
 zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o
-	g++ $(CFLAGS) $(LIBS)  *.o -ozenzibar
+	g++ $(CFLAGS) $(LIBS)  $(LOCAL_LIB_DIR)/*.o -o$(LOCAL_BUILD_DIR)/zenzibar
 
 gui.o:
-	g++ $(CFLAGS) $(LIBS) -c gui.cpp
+	g++ $(CFLAGS) $(LIBS) -c gui.cpp -o $(LOCAL_LIB_DIR)/gui.o
 
 debugConsole.o:
-	g++ $(CFLAGS) $(LIBS) -c debugConsole.cpp
+	g++ $(CFLAGS) $(LIBS) -c debugConsole.cpp -o $(LOCAL_LIB_DIR)/debugConsole.o
 
 mtpAdapter.o:
-	g++ $(CFLAGS) $(LIBS) -c mtpAdapter.cpp
+	g++ $(CFLAGS) $(LIBS) -c mtpAdapter.cpp -o $(LOCAL_LIB_DIR)/mtpAdapter.o
 
 mtpDeviceDetails.o:
-	g++ -c mtpDeviceDetails.cpp
+	g++ -c mtpDeviceDetails.cpp -o $(LOCAL_LIB_DIR)/mtpDeviceDetails.o
 
-
+.PHONY: clean
 clean:
-	@rm -f *.o
-	@rm -f $(PROGRAM)
+	@rm -f $(LOCAL_LIB_DIR)/*.o
+	@rm -f $(LOCAL_BUILD_DIR)/$(PROGRAM)
