@@ -8,7 +8,6 @@ CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0)
 
 LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
-
 all: $(PROGRAM)
 
 zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o
