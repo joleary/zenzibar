@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include "mtpAdapter.h"
 #include "debugConsole.h"
+#include "libraryWidget.h"
 #include <iostream>
 
 GtkWidget *window;
@@ -14,9 +15,14 @@ GtkWidget *disconnectButton;
 GtkWidget *vpane;
 GtkWidget *hbox;
 GtkWidget *consoleFrame;
+GtkWidget *menuvbox;
+GtkWidget *mainScrollwindow;
+GtkWidget *libWidget;
+
 
 mtpAdapter *adapter;
 debugConsole *console;
+libraryWidget *libraryViewer;
 
 static void connect(GtkWidget *widget, gpointer data) {
 	console->print("connecting...");
@@ -56,6 +62,7 @@ void initialiseUI() {
 	menubar = gtk_menu_bar_new();
 	statusbar = gtk_statusbar_new();
 	rootVBox = gtk_vbox_new(false,0);
+	menuvbox = gtk_vbox_new(false,0);
 	roothpane = gtk_hpaned_new();
 	vpane = gtk_vpaned_new();
 	consoleFrame = gtk_frame_new(NULL);
@@ -63,6 +70,9 @@ void initialiseUI() {
 	connectButton = gtk_button_new_with_label("Connect");
 	disconnectButton = gtk_button_new_with_label("DisConnect");
 	hbox = gtk_hbox_new(false,10);
+	mainScrollwindow = gtk_scrolled_window_new(NULL,NULL);
+	libraryViewer = new libraryWidget();
+	libWidget = libraryViewer->getLibraryWidget();
 }
 
 /*
@@ -74,19 +84,23 @@ void assembleUI(GtkWidget *topLevelWindow) {
 	
 	gtk_box_pack_start(GTK_BOX(rootVBox),menubar,false,true,0);
 	
-	gtk_box_pack_start(GTK_BOX(rootVBox),roothpane,true,true,0);
+	gtk_box_pack_start(GTK_BOX(rootVBox),vpane,true,true,0);
 	
 	gtk_box_pack_start(GTK_BOX(rootVBox),statusbar,false,true,0);
 	
-	gtk_paned_add2(GTK_PANED(roothpane),vpane);
+	gtk_paned_add1(GTK_PANED(vpane),roothpane);
 	
 	gtk_paned_add2(GTK_PANED(vpane),consoleFrame);
 	
-	gtk_box_pack_start(GTK_BOX(hbox),connectButton,false,false,5);
+	gtk_paned_add1(GTK_PANED(roothpane),menuvbox);
 	
-	gtk_box_pack_start(GTK_BOX(hbox),disconnectButton,false,false,5);
+	gtk_container_add(GTK_CONTAINER(mainScrollwindow),libWidget);
 	
-	gtk_paned_add1(GTK_PANED(vpane),hbox);
+	gtk_paned_add2(GTK_PANED(roothpane),mainScrollwindow);
+	
+	gtk_box_pack_start(GTK_BOX(menuvbox),connectButton,false,false,5);
+	
+	gtk_box_pack_start(GTK_BOX(menuvbox),disconnectButton,false,false,5);
 }
 
 void connectSignals() {
