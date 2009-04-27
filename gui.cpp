@@ -102,7 +102,7 @@ void assembleUI(GtkWidget *topLevelWindow) {
 	
 	gtk_container_add(GTK_CONTAINER(libraryFrame),libWidget);
 	
-	gtk_container_add(GTK_CONTAINER(mainScrollwindow),libraryFrame);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(mainScrollwindow),libraryFrame);
 	
 	gtk_paned_add2(GTK_PANED(roothpane),mainScrollwindow);
 	
