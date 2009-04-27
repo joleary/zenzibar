@@ -19,6 +19,8 @@ GtkWidget *menuvbox;
 GtkWidget *mainScrollwindow;
 GtkWidget *libWidget;
 
+GtkWidget *libraryFrame;
+GtkWidget *menuFrame;
 
 mtpAdapter *adapter;
 debugConsole *console;
@@ -73,6 +75,8 @@ void initialiseUI() {
 	mainScrollwindow = gtk_scrolled_window_new(NULL,NULL);
 	libraryViewer = new libraryWidget();
 	libWidget = libraryViewer->getLibraryWidget();
+	libraryFrame = gtk_frame_new(NULL);
+	menuFrame = gtk_frame_new(NULL);
 }
 
 /*
@@ -92,9 +96,13 @@ void assembleUI(GtkWidget *topLevelWindow) {
 	
 	gtk_paned_add2(GTK_PANED(vpane),consoleFrame);
 	
-	gtk_paned_add1(GTK_PANED(roothpane),menuvbox);
+	gtk_container_add(GTK_CONTAINER(menuFrame),menuvbox);
 	
-	gtk_container_add(GTK_CONTAINER(mainScrollwindow),libWidget);
+	gtk_paned_add1(GTK_PANED(roothpane),menuFrame);
+	
+	gtk_container_add(GTK_CONTAINER(libraryFrame),libWidget);
+	
+	gtk_container_add(GTK_CONTAINER(mainScrollwindow),libraryFrame);
 	
 	gtk_paned_add2(GTK_PANED(roothpane),mainScrollwindow);
 	
@@ -116,6 +124,8 @@ int main(int argc, char *argv[]) {
 	adapter = mtpAdapter::Instance();
 	
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(window));
+	gtk_window_set_default_size(GTK_WINDOW(window),gdk_screen_get_width(screen)/2,gdk_screen_get_height(screen)/2);
 	
 	initialiseUI();
 	
