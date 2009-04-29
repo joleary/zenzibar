@@ -28,11 +28,10 @@ libraryWidget *libraryViewer;
 
 static void connect(GtkWidget *widget, gpointer data) {
 	console->print("connecting...");
-	gboolean conStatus=false;
-	conStatus = adapter->connect();
+	gboolean conStatus = adapter->connect();
 	if(conStatus) {
 		console->print("Connected");
-		std::cout << adapter->getDeviceDetailsString()<< std::endl;
+		console->print(adapter->getDeviceDetailsString());
 	} else {
 		console->print("Failed to connect");
 	}
@@ -41,8 +40,7 @@ static void connect(GtkWidget *widget, gpointer data) {
 static void disconnect(GtkWidget *widget, gpointer data) {
 	console->print("disconnecting...");
 	adapter->disconnect();
-	gboolean conStatus=false;
-	conStatus = adapter->isConnected();
+	gboolean conStatus = adapter->isConnected();
 	if(conStatus) {
 		console->print("failed to disconnect");
 	} else {
@@ -109,6 +107,7 @@ void assembleUI(GtkWidget *topLevelWindow) {
 	gtk_box_pack_start(GTK_BOX(menuvbox),connectButton,false,false,5);
 	
 	gtk_box_pack_start(GTK_BOX(menuvbox),disconnectButton,false,false,5);
+
 }
 
 void connectSignals() {
@@ -134,6 +133,8 @@ int main(int argc, char *argv[]) {
 	connectSignals();
 	
 	gtk_widget_show_all(window);
+	
+	gtk_paned_set_position(GTK_PANED(vpane),(GTK_PANED(vpane)->max_position)-90);
 	
 	gtk_main();
 	
