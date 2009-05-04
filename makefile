@@ -10,7 +10,7 @@ LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
 all: $(PROGRAM)
 
-zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o libraryWidget.o
+zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o libraryWidget.o signalBox.o
 	g++ $(CFLAGS) $(LIBS)  $(LOCAL_LIB_DIR)/*.o -o$(LOCAL_BUILD_DIR)/zenzibar
 
 gui.o:
@@ -27,6 +27,9 @@ mtpDeviceDetails.o:
 
 libraryWidget.o:
 	g++ $(CFLAGS) $(LIBS) -c libraryWidget.cpp -o $(LOCAL_LIB_DIR)/libraryWidget.o
+
+signalBox.o:
+	g++ $(CFLAGS) $(LIBS) -c signalBox.cpp -o $(LOCAL_LIB_DIR)/signalBox.o
 
 .PHONY: clean
 clean:

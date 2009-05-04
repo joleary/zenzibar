@@ -10,7 +10,20 @@
 #include <vector>
 
 
-struct trackItem {uint32_t folder;uint32_t file;std::string title;};
+struct trackItem {	uint32_t parent_id;
+					uint32_t id;
+					uint32_t storage_id;
+					std::string title;
+					std::string artist;
+					std::string composer;
+					std::string album;
+					std::string genre;
+					std::string date;
+					std::string filename;
+					uint16_t tracknum;
+					uint32_t duration;
+					uint16_t rating;
+				};
 
 class mtpAdapter {
 	private:

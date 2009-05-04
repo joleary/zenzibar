@@ -7,6 +7,7 @@ class libraryWidget {
 		GtkWidget *getLibraryWidget();
 		static void selected(GtkTreeSelection*,libraryWidget*);
 		void hideColumn();
+		void addItem();
 	private:
 		GtkWidget *listWidget;
 		GtkListStore *listStore;
@@ -58,6 +59,5 @@ class libraryWidget {
 		GtkTreeViewColumn *duration_column;
 		GtkTreeViewColumn *rating_column;
 		
-		void addItem();
 		void setColumns();
 };
