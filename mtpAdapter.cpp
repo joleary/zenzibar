@@ -20,14 +20,12 @@ mtpAdapter* mtpAdapter::Instance() {
  * 
  */
 mtpAdapter::mtpAdapter() {
-	cout << "create"<< endl;
 	deviceData = new mtpDeviceDetails();
 	connected=false;
 	LIBMTP_Init();
 	LIBMTP_raw_device_t * rawDevices;
 	int numRawDevice;
 	LIBMTP_Detect_Raw_Devices(&rawDevices,&numRawDevice);
-	cout << "found: " << numRawDevice << endl;
 }
 
 /*
@@ -95,7 +93,6 @@ bool mtpAdapter::connect() {
 		folders = LIBMTP_Get_Folder_List(device);
 		playlists = LIBMTP_Get_Playlist_List(device);
 		createTracklist();
-		cout << "got a device connection" << endl;
 		deviceData->setManufacturer(LIBMTP_Get_Manufacturername(device));
 		deviceData->setModel(LIBMTP_Get_Modelname(device));
 		deviceData->setSerial(LIBMTP_Get_Serialnumber(device));
@@ -115,8 +112,8 @@ void mtpAdapter::listFolderTracks(uint32_t folderId) {
 	trackIterator = trackVector.begin();
 	while(trackIterator != trackVector.end()) {
 		trackItem tmp = *trackIterator;
-		if(tmp.folder==folderId) {
-			cout <<  tmp.file << "(" << tmp.title << ")"<< endl;
+		if(tmp.parent_id==folderId) {
+			cout <<  tmp.id << "(" << tmp.title << ")"<< endl;
 		}
 		++trackIterator;
 	}
@@ -133,11 +130,10 @@ void mtpAdapter::disconnect() {
 		trackVector.clear();
 		if(device!=NULL) {
 			LIBMTP_Release_Device(device);
-			cout << "device released" << endl;
 			connected=false;
 		}
 	} else {
-		cout << "not connected, no device to release" << endl;
+		connected=false;
 	}
 }
 
@@ -166,13 +162,16 @@ void mtpAdapter::createTracklist() {
 		LIBMTP_track_t *tmp;
 		tmp = tracklist;
 		struct trackItem ti;
-		ti.folder = tmp->parent_id;
-		ti.file = tmp->item_id;
-		if(tmp->title!=NULL) {
-			ti.title=tmp->title;
-		} else {
-			ti.title="Unknown Title";
-		}
+		ti.parent_id = tmp->parent_id;
+		ti.id = tmp->item_id;
+		ti.storage_id = tmp->storage_id;
+		if(tmp->title!=NULL) { ti.title=tmp->title;	} else { ti.title="Unknown"; }
+		if(tmp->artist!=NULL) { ti.artist=tmp->artist;	} else { ti.artist="Unknown"; }
+		if(tmp->composer!=NULL) { ti.composer=tmp->composer;	} else { ti.composer="Unknown"; }
+		if(tmp->genre!=NULL) { ti.genre=tmp->genre;	} else { ti.genre="Unknown"; }
+		if(tmp->album!=NULL) { ti.album=tmp->album;	} else { ti.album="Unknown"; }
+		if(tmp->date!=NULL) { ti.date=tmp->date;	} else { ti.date="Unknown"; }
+		if(tmp->filename!=NULL) { ti.filename=tmp->filename;	} else { ti.filename="Unknown"; }
 		trackVector.push_back(ti);
 		tracklist = tracklist->next;
 		LIBMTP_destroy_track_t(tmp);
@@ -196,7 +195,7 @@ void mtpAdapter::listPlaylists() {
 			trackIterator = trackVector.begin();
 			while(trackIterator!=trackVector.end()) {
 				ti=*trackIterator;
-				if(ti.file == tmp->tracks[i]) {
+				if(ti.id == tmp->tracks[i]) {
 					break;
 				}
 				++trackIterator;

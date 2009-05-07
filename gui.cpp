@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-#include "mtpAdapter.h"
+#include "signalBox.h"
 #include "debugConsole.h"
 #include "libraryWidget.h"
 #include <iostream>
@@ -22,36 +22,12 @@ GtkWidget *libWidget;
 GtkWidget *libraryFrame;
 GtkWidget *menuFrame;
 
-mtpAdapter *adapter;
 debugConsole *console;
 libraryWidget *libraryViewer;
-
-static void connect(GtkWidget *widget, gpointer data) {
-	console->print("connecting...");
-	gboolean conStatus = adapter->connect();
-	if(conStatus) {
-		console->print("Connected");
-		console->print(adapter->getDeviceDetailsString());
-	} else {
-		console->print("Failed to connect");
-	}
-}
-
-static void disconnect(GtkWidget *widget, gpointer data) {
-	console->print("disconnecting...");
-	adapter->disconnect();
-	gboolean conStatus = adapter->isConnected();
-	if(conStatus) {
-		console->print("failed to disconnect");
-	} else {
-		console->print("disconnected");
-	}
-}
+signalBox *signalbox = signalBox::Instance();
 
 static void destroy(GtkWidget *widget, gpointer data) {
-	if(adapter->isConnected()) {
-		disconnect(NULL,NULL);
-	}
+
 	gtk_main_quit();
 }
 
@@ -66,7 +42,7 @@ void initialiseUI() {
 	roothpane = gtk_hpaned_new();
 	vpane = gtk_vpaned_new();
 	consoleFrame = gtk_frame_new(NULL);
-	console = new debugConsole(GTK_CONTAINER(consoleFrame));
+	console->addToContainer(GTK_CONTAINER(consoleFrame));
 	connectButton = gtk_button_new_with_label("Connect");
 	disconnectButton = gtk_button_new_with_label("DisConnect");
 	hbox = gtk_hbox_new(false,10);
@@ -112,15 +88,15 @@ void assembleUI(GtkWidget *topLevelWindow) {
 
 void connectSignals() {
 	g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
-	g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(connect),NULL);
-	g_signal_connect(G_OBJECT(disconnectButton),"clicked",G_CALLBACK(disconnect),NULL);
+	g_signal_connect(G_OBJECT(connectButton),"clicked",G_CALLBACK(signalbox->connect),NULL);
+	g_signal_connect(G_OBJECT(disconnectButton),"clicked",G_CALLBACK(signalbox->disconnect),NULL);
 }
 
 int main(int argc, char *argv[]) {
 	
 	gtk_init(&argc,&argv);
 	
-	adapter = mtpAdapter::Instance();
+	console = debugConsole::Instance();
 	
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(window));
