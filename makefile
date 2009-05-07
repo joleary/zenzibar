@@ -8,10 +8,14 @@ CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0)
 
 LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
-all: $(PROGRAM)
+all: pre-build $(PROGRAM)
 
 zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o libraryWidget.o
 	g++ $(CFLAGS) $(LIBS)  $(LOCAL_LIB_DIR)/*.o -o$(LOCAL_BUILD_DIR)/zenzibar
+
+pre-build:
+	@mkdir -p build
+	@mkdir -p lib
 
 gui.o:
 	g++ $(CFLAGS) $(LIBS) -c gui.cpp -o $(LOCAL_LIB_DIR)/gui.o
