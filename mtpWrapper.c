@@ -150,3 +150,7 @@ char * getDeviceName(int deviceNumber) {
 	}
 	return deviceName;
 }
+
+int getCacheSize() {
+	return cacheCount;
+}

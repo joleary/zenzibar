@@ -50,3 +50,4 @@ int disconnect();
 int cacheTracks(LIBMTP_progressfunc_t);
 int getNumberOfDevices();
 char * getDeviceName(int);
+int getCacheSize();

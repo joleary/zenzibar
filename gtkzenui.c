@@ -42,7 +42,9 @@ void arrangeUI() {
 	gtk_container_add(GTK_CONTAINER(rootWindow),rootVBox);
 	gtk_box_pack_start(GTK_BOX(rootVBox),windowMenu,FALSE,FALSE,0);
 	gtk_box_pack_start(GTK_BOX(rootVBox),mainContainerHPane,TRUE,TRUE,0);
-	gtk_box_pack_start(GTK_BOX(rootVBox),mainProgressBar,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(rootVBox),windowFooter,FALSE,FALSE,0);
+	gtk_box_pack_start(GTK_BOX(windowFooter),mainProgressBar,FALSE,FALSE,0);
+	gtk_box_reorder_child(GTK_BOX(windowFooter),mainProgressBar,0);
 	gtk_paned_add1(GTK_PANED(mainContainerHPane),mainSideBarScrollContainer);
 	gtk_paned_add2(GTK_PANED(mainContainerHPane),mainScrollContainer);
 	gtk_container_add(GTK_CONTAINER(mainSideBarScrollContainer),sidebarDeviceList);
@@ -50,7 +52,10 @@ void arrangeUI() {
 }
 
 void showUI() {
+	GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(rootWindow));
+	gtk_window_set_default_size(GTK_WINDOW(rootWindow),gdk_screen_get_width(screen)/2,gdk_screen_get_height(screen)/2);
 	gtk_widget_show_all(rootWindow);
+	gtk_widget_hide(mainProgressBar);
 }
 
 void addDeviceToDeviceList(int dNum,char *dName) {
@@ -59,4 +64,8 @@ void addDeviceToDeviceList(int dNum,char *dName) {
 		gtk_list_store_append(deviceListStore,&iter);
 		gtk_list_store_set(deviceListStore,&iter,0,dNum,1,dName,-1);
 	}
+}
+
+void updateDeviceList(GtkTreeIter iter,char *newName) {
+	gtk_list_store_set(deviceListStore,&iter,1,newName,-1);
 }

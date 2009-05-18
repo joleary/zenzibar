@@ -15,3 +15,4 @@ void drawUI();
 void arrangeUI();
 void showUI();
 void addDeviceToDeviceList(int,char *);
+void updateDeviceList(GtkTreeIter,char *);
