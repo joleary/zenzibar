@@ -10,30 +10,21 @@ LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
 all: pre-build $(PROGRAM)
 
-zenzibar: gui.o debugConsole.o mtpAdapter.o mtpDeviceDetails.o libraryWidget.o signalBox.o
-	g++ $(CFLAGS) $(LIBS)  $(LOCAL_LIB_DIR)/*.o -o$(LOCAL_BUILD_DIR)/zenzibar
+zenzibar: main mtpWrapper gtkzenui
+	g++ -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/main.o $(LOCAL_LIB_DIR)/mtpWrapper.o $(LOCAL_LIB_DIR)/gtkzenui.o -o $(LOCAL_BUILD_DIR)/zenzibar
 
 pre-build:
 	@mkdir -p build
 	@mkdir -p lib
 
-gui.o:
-	g++ $(CFLAGS) $(LIBS) -c gui.cpp -o $(LOCAL_LIB_DIR)/gui.o
+main:
+	g++ $(CFLAGS) $(LIBS) -g -c main.c -o $(LOCAL_LIB_DIR)/main.o
 
-debugConsole.o:
-	g++ $(CFLAGS) $(LIBS) -c debugConsole.cpp -o $(LOCAL_LIB_DIR)/debugConsole.o
+mtpWrapper:
+	g++ $(CFLAGS) $(LIBS) -g -c mtpWrapper.c -o $(LOCAL_LIB_DIR)/mtpWrapper.o
 
-mtpAdapter.o:
-	g++ $(CFLAGS) $(LIBS) -c mtpAdapter.cpp -o $(LOCAL_LIB_DIR)/mtpAdapter.o
-
-mtpDeviceDetails.o:
-	g++ -c mtpDeviceDetails.cpp -o $(LOCAL_LIB_DIR)/mtpDeviceDetails.o
-
-libraryWidget.o:
-	g++ $(CFLAGS) $(LIBS) -c libraryWidget.cpp -o $(LOCAL_LIB_DIR)/libraryWidget.o
-
-signalBox.o:
-	g++ $(CFLAGS) $(LIBS) -c signalBox.cpp -o $(LOCAL_LIB_DIR)/signalBox.o
+gtkzenui:
+	g++ $(CFLAGS) $(LIBS) -g -c gtkzenui.c -o $(LOCAL_LIB_DIR)/gtkzenui.o
 
 .PHONY: clean
 clean:
