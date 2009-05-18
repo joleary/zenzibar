@@ -8,7 +8,7 @@ extern GtkWidget *mainContainerHPane;
 extern GtkWidget *mainSideBarScrollContainer;
 extern GtkWidget *sidebarDeviceList;
 extern GtkWidget *mainScrollContainer;
-extern GtkWidget *mainList;
+extern GtkWidget *trackList;
 extern GtkWidget *mainProgressBar;
 extern GtkTreeSelection *deviceSelect;
 void drawUI();

@@ -6,14 +6,25 @@ GtkWidget *windowMenu;
 GtkWidget *windowFooter;
 GtkWidget *mainContainerHPane;
 GtkWidget *mainSideBarScrollContainer;
-GtkWidget *sidebarDeviceList;
+GtkWidget *mainProgressBar;
 GtkWidget *mainScrollContainer;
-GtkWidget *mainList;
+
+GtkWidget *sidebarDeviceList;
 GtkListStore *deviceListStore;
-GtkCellRenderer *deviceRenderer;
 GtkTreeViewColumn *deviceColumn;
 GtkTreeSelection *deviceSelect;
-GtkWidget *mainProgressBar;
+
+GtkWidget *trackList;
+GtkListStore *trackListStore;
+GtkTreeViewColumn *titleColumn;
+GtkTreeViewColumn *artistColumn;
+GtkTreeViewColumn *albumColumn;
+GtkTreeViewColumn *genreColumn;
+GtkTreeViewColumn *durationColumn;
+GtkTreeViewColumn *ratingColumn;
+GtkTreeSelection *trackSelect;
+
+enum {ID,TITLE,ARTIST,ALBUM,GENRE,DURATION,RATING,TRACK_COLUMNS};
 
 void drawUI() {
 	rootWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -21,18 +32,40 @@ void drawUI() {
 	windowMenu = gtk_menu_bar_new();
 	windowFooter = gtk_statusbar_new();
 	mainContainerHPane = gtk_hpaned_new();
-	mainSideBarScrollContainer = gtk_scrolled_window_new(NULL,NULL);
+	mainSideBarScrollContainer = gtk_scrolled_window_new(NULL, NULL);
 	
-	deviceListStore = gtk_list_store_new(2,G_TYPE_INT,G_TYPE_STRING);
+	deviceListStore = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
 	sidebarDeviceList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(deviceListStore));
-	deviceRenderer = gtk_cell_renderer_text_new();
-	deviceColumn = gtk_tree_view_column_new_with_attributes("Devices",deviceRenderer,"text",1,NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(sidebarDeviceList),deviceColumn);
+	deviceColumn = gtk_tree_view_column_new_with_attributes("Devices", gtk_cell_renderer_text_new(), "text", 1, NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(sidebarDeviceList), deviceColumn);
 	deviceSelect = gtk_tree_view_get_selection(GTK_TREE_VIEW(sidebarDeviceList));
-	gtk_tree_selection_set_mode(deviceSelect,GTK_SELECTION_SINGLE);
+	gtk_tree_selection_set_mode(deviceSelect, GTK_SELECTION_SINGLE);
 	
 	mainScrollContainer = gtk_scrolled_window_new(NULL,NULL);
-	mainList = gtk_tree_view_new();
+	
+	trackListStore = gtk_list_store_new(TRACK_COLUMNS, G_TYPE_INT,
+														G_TYPE_STRING,
+														G_TYPE_STRING,
+														G_TYPE_STRING,
+														G_TYPE_STRING,
+														G_TYPE_STRING,
+														G_TYPE_INT);
+	trackList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(trackListStore));
+	titleColumn = gtk_tree_view_column_new_with_attributes("title",gtk_cell_renderer_text_new(),"text",1,NULL);
+	artistColumn = gtk_tree_view_column_new_with_attributes("artist",gtk_cell_renderer_text_new(),"text",1,NULL);
+	albumColumn = gtk_tree_view_column_new_with_attributes("album",gtk_cell_renderer_text_new(),"text",1,NULL);
+	genreColumn = gtk_tree_view_column_new_with_attributes("genre",gtk_cell_renderer_text_new(),"text",1,NULL);
+	durationColumn = gtk_tree_view_column_new_with_attributes("duration",gtk_cell_renderer_text_new(),"text",1,NULL);
+	ratingColumn = gtk_tree_view_column_new_with_attributes("rating",gtk_cell_renderer_text_new(),"text",1,NULL);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),titleColumn);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),artistColumn);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),albumColumn);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),genreColumn);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),durationColumn);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),ratingColumn);
+	trackSelect = gtk_tree_view_get_selection(GTK_TREE_VIEW(trackList));
+	gtk_tree_selection_set_mode(trackSelect, GTK_SELECTION_SINGLE);
+	
 	mainProgressBar = gtk_progress_bar_new();
 	arrangeUI();
 	showUI();
@@ -48,7 +81,7 @@ void arrangeUI() {
 	gtk_paned_add1(GTK_PANED(mainContainerHPane),mainSideBarScrollContainer);
 	gtk_paned_add2(GTK_PANED(mainContainerHPane),mainScrollContainer);
 	gtk_container_add(GTK_CONTAINER(mainSideBarScrollContainer),sidebarDeviceList);
-	gtk_container_add(GTK_CONTAINER(mainScrollContainer),mainList);
+	gtk_container_add(GTK_CONTAINER(mainScrollContainer),trackList);
 }
 
 void showUI() {
