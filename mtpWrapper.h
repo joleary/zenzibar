@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include "handyStructures.h"
 
 typedef struct DEVICEDETAILS deviceDetails;
 
@@ -14,22 +15,6 @@ struct DEVICEDETAILS {
 	char *version;
 };
 
-typedef struct TRACKDETAILS trackDetails;
-
-struct TRACKDETAILS {
-	uint32_t id;
-	uint32_t parentid;
-	char *title;
-	char *artist;
-	char *album;
-	char *composer;
-	char *genre;
-	char *date;
-	char *filename;
-	uint16_t rating;
-	uint32_t duration;
-};
-
 typedef struct TRACKMAP trackMap;
 
 struct TRACKMAP {
@@ -37,7 +22,6 @@ struct TRACKMAP {
 	trackDetails *details;
 	trackMap *next;
 };
-
 /*
  * function prototypes
  */
@@ -49,5 +33,6 @@ int connectToZen(int);
 int disconnect();
 int cacheTracks(LIBMTP_progressfunc_t);
 int getNumberOfDevices();
-char * getDeviceName(int);
+const char * getDeviceName(int);
 int getCacheSize();
+trackMap * getCache();

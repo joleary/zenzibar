@@ -1,7 +1,9 @@
 #include "mtpWrapper.h"
 #include "gtkzenui.h"
+#include "handyStructures.h"
 
 int INITIALISED = 0;
+int CURRENTDEVICENUMBER=-1;
 
 static void quit(GtkWidget *widget,gpointer data) {
 	clearCache();
@@ -30,19 +32,31 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 	char *deviceString;
 	if(gtk_tree_selection_get_selected(deviceSelect,&model,&iter)) {
 		gtk_tree_model_get(model,&iter,0,&deviceNumber,1,&deviceString,-1);
-		connectToZen(deviceNumber);
-		gtk_widget_show(mainProgressBar);
-		gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(mainProgressBar),0.1);
-		
-		cacheTracks((LIBMTP_progressfunc_t)trackCachedProgress);
-		
-		gtk_widget_hide(mainProgressBar);
-		char *newDeviceString = (char *)calloc(100,sizeof(char));
-		char cacheSizeString[8];
-		sprintf(cacheSizeString," (%d)\0",getCacheSize());
-		strcat(newDeviceString,deviceString);
-		strcat(newDeviceString,cacheSizeString);
-		updateDeviceList(iter,newDeviceString);
+		if(deviceNumber!=CURRENTDEVICENUMBER) {
+			CURRENTDEVICENUMBER = connectToZen(deviceNumber);
+			gtk_widget_show(mainProgressBar);
+			gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(mainProgressBar),0.1);
+			if(CURRENTDEVICENUMBER!=-1) {
+				cacheTracks((LIBMTP_progressfunc_t)trackCachedProgress);
+				char *newDeviceString = (char *)calloc(strlen(getDeviceName(deviceNumber)) + 1,sizeof(char));
+				char cacheSizeString[8];
+				sprintf(cacheSizeString," (%d)\0",getCacheSize());
+				strcat(newDeviceString,deviceString);
+				realloc(newDeviceString,sizeof(newDeviceString)+8);
+				strcat(newDeviceString,cacheSizeString);
+				updateDeviceListEntry(iter,newDeviceString);
+				INITIALISED=1;
+			}
+			gtk_widget_hide(mainProgressBar);
+		}
+		if(INITIALISED==1) {
+			clearTrackList();
+			trackMap *temp = getCache();
+			while(temp!=NULL) {
+				updateTrackList(temp->details);
+				temp = temp->next;
+			}
+		}
 	}
 }
 

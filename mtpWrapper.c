@@ -114,7 +114,7 @@ int connectToZen(int deviceNumber) {
 		device = LIBMTP_Open_Raw_Device(&rawDevices[deviceNumber]);
 		return deviceNumber;
 	} else {
-		return 0;
+		return -1;
 	}
 }
 
@@ -143,7 +143,7 @@ int getNumberOfDevices() {
 	return numRawDevices;
 }
 
-char * getDeviceName(int deviceNumber) {
+const char * getDeviceName(int deviceNumber) {
 	char *deviceName=NULL;
 	if(deviceNumber < numRawDevices) {
 		deviceName = rawDevices[deviceNumber].device_entry.product;
@@ -153,4 +153,8 @@ char * getDeviceName(int deviceNumber) {
 
 int getCacheSize() {
 	return cacheCount;
+}
+
+trackMap * getCache() {
+	return rootTrackList;
 }

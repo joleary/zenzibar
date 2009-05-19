@@ -1,5 +1,5 @@
 #include <gtk/gtk.h>
-
+#include "handyStructures.h"
 extern GtkWidget *rootWindow;
 extern GtkWidget *rootVBox;
 extern GtkWidget *windowMenu;
@@ -11,8 +11,11 @@ extern GtkWidget *mainScrollContainer;
 extern GtkWidget *trackList;
 extern GtkWidget *mainProgressBar;
 extern GtkTreeSelection *deviceSelect;
+
 void drawUI();
 void arrangeUI();
 void showUI();
-void addDeviceToDeviceList(int,char *);
-void updateDeviceList(GtkTreeIter,char *);
+void addDeviceToDeviceList(int,const char *);
+void updateDeviceListEntry(GtkTreeIter,char *);
+void updateTrackList(trackDetails *tDetails);
+void clearTrackList();

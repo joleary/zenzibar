@@ -52,11 +52,11 @@ void drawUI() {
 														G_TYPE_INT);
 	trackList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(trackListStore));
 	titleColumn = gtk_tree_view_column_new_with_attributes("title",gtk_cell_renderer_text_new(),"text",1,NULL);
-	artistColumn = gtk_tree_view_column_new_with_attributes("artist",gtk_cell_renderer_text_new(),"text",1,NULL);
-	albumColumn = gtk_tree_view_column_new_with_attributes("album",gtk_cell_renderer_text_new(),"text",1,NULL);
-	genreColumn = gtk_tree_view_column_new_with_attributes("genre",gtk_cell_renderer_text_new(),"text",1,NULL);
-	durationColumn = gtk_tree_view_column_new_with_attributes("duration",gtk_cell_renderer_text_new(),"text",1,NULL);
-	ratingColumn = gtk_tree_view_column_new_with_attributes("rating",gtk_cell_renderer_text_new(),"text",1,NULL);
+	artistColumn = gtk_tree_view_column_new_with_attributes("artist",gtk_cell_renderer_text_new(),"text",2,NULL);
+	albumColumn = gtk_tree_view_column_new_with_attributes("album",gtk_cell_renderer_text_new(),"text",3,NULL);
+	genreColumn = gtk_tree_view_column_new_with_attributes("genre",gtk_cell_renderer_text_new(),"text",4,NULL);
+	durationColumn = gtk_tree_view_column_new_with_attributes("duration",gtk_cell_renderer_text_new(),"text",5,NULL);
+	ratingColumn = gtk_tree_view_column_new_with_attributes("rating",gtk_cell_renderer_text_new(),"text",6,NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),titleColumn);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),artistColumn);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),albumColumn);
@@ -91,7 +91,7 @@ void showUI() {
 	gtk_widget_hide(mainProgressBar);
 }
 
-void addDeviceToDeviceList(int dNum,char *dName) {
+void addDeviceToDeviceList(int dNum,const char *dName) {
 	if(dName!=NULL) {
 		GtkTreeIter iter;
 		gtk_list_store_append(deviceListStore,&iter);
@@ -99,6 +99,24 @@ void addDeviceToDeviceList(int dNum,char *dName) {
 	}
 }
 
-void updateDeviceList(GtkTreeIter iter,char *newName) {
+void updateDeviceListEntry(GtkTreeIter iter,char *newName) {
 	gtk_list_store_set(deviceListStore,&iter,1,newName,-1);
+}
+
+void clearTrackList() {
+	gtk_list_store_clear(trackListStore);
+}
+
+void updateTrackList(trackDetails *tDetails) {
+	if(tDetails!=NULL) {
+		GtkTreeIter iter;
+		gtk_list_store_append(trackListStore,&iter);
+		gtk_list_store_set(trackListStore,&iter,ID,tDetails->id,
+												TITLE,tDetails->title,
+												ARTIST,tDetails->artist,
+												ALBUM,tDetails->album,
+												GENRE,tDetails->genre,
+												RATING,tDetails->rating,
+												-1);
+	}
 }
