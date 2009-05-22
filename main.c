@@ -42,7 +42,7 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 				char cacheSizeString[8];
 				sprintf(cacheSizeString," (%d)\0",getCacheSize());
 				strcat(newDeviceString,deviceString);
-				realloc(newDeviceString,sizeof(newDeviceString)+8);
+				newDeviceString = (char *)realloc(newDeviceString,sizeof(newDeviceString)+8);
 				strcat(newDeviceString,cacheSizeString);
 				updateDeviceListEntry(iter,newDeviceString);
 				INITIALISED=1;
@@ -60,6 +60,27 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 	}
 }
 
+static void disconnectFromDevice(GtkWidget *widget, gpointer data) {
+	clearCache();
+	clearTrackList();
+	disconnect();
+}
+
+static gint deviceListHandler(GtkWidget *widget,GdkEvent *event) {
+	GdkEventButton *evtButton;
+	if(event->type==GDK_BUTTON_PRESS) {
+		evtButton = (GdkEventButton *)event;
+		if(evtButton->button == 3) {
+			gtk_menu_popup(GTK_MENU(widget),NULL,NULL,NULL,NULL,evtButton->button,evtButton->time);
+			g_signal_connect(G_OBJECT(devicePopupConnect),"activate",G_CALLBACK(connectToDevice),NULL);
+			g_signal_connect(G_OBJECT(devicePopupDisconnect),"activate",G_CALLBACK(disconnectFromDevice),NULL);
+			gtk_widget_show_all(widget);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 int main(int argc, char*argv[]) {
 	int numberofzens;
 	int numberoftracks;
@@ -67,7 +88,7 @@ int main(int argc, char*argv[]) {
 	drawUI();
 	numberofzens = initZenLibrary();
 	g_signal_connect(G_OBJECT(rootWindow),"destroy",G_CALLBACK(quit),NULL);
-	g_signal_connect(G_OBJECT(deviceSelect),"changed",G_CALLBACK(connectToDevice),NULL);
+	g_signal_connect_swapped(G_OBJECT(sidebarDeviceList),"button_press_event",G_CALLBACK(deviceListHandler),devicePopupMenu);
 	populateDeviceList();
 	gtk_main();
 	

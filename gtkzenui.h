@@ -7,6 +7,11 @@ extern GtkWidget *windowFooter;
 extern GtkWidget *mainContainerHPane;
 extern GtkWidget *mainSideBarScrollContainer;
 extern GtkWidget *sidebarDeviceList;
+extern GtkWidget *devicePopupMenu;
+extern GtkWidget *devicePopupConnect;
+extern GtkWidget *devicePopupDisconnect;
+extern GtkWidget *devicePopupDetails;
+
 extern GtkWidget *mainScrollContainer;
 extern GtkWidget *trackList;
 extern GtkWidget *mainProgressBar;

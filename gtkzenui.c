@@ -13,6 +13,11 @@ GtkWidget *sidebarDeviceList;
 GtkListStore *deviceListStore;
 GtkTreeViewColumn *deviceColumn;
 GtkTreeSelection *deviceSelect;
+GtkWidget *devicePopupMenu;
+GtkWidget *devicePopupConnect;
+GtkWidget *devicePopupDisconnect;
+GtkWidget *devicePopupDetails;
+
 
 GtkWidget *trackList;
 GtkListStore *trackListStore;
@@ -41,6 +46,14 @@ void drawUI() {
 	deviceSelect = gtk_tree_view_get_selection(GTK_TREE_VIEW(sidebarDeviceList));
 	gtk_tree_selection_set_mode(deviceSelect, GTK_SELECTION_SINGLE);
 	
+	devicePopupMenu = gtk_menu_new();
+	devicePopupConnect = gtk_menu_item_new_with_label("Connect");
+	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupConnect);
+	devicePopupDisconnect = gtk_menu_item_new_with_label("Disconnect");
+	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupDisconnect);
+	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),gtk_separator_menu_item_new());
+	devicePopupDetails = gtk_menu_item_new_with_label("Details");
+	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupDetails);
 	mainScrollContainer = gtk_scrolled_window_new(NULL,NULL);
 	
 	trackListStore = gtk_list_store_new(TRACK_COLUMNS, G_TYPE_INT,
@@ -51,12 +64,18 @@ void drawUI() {
 														G_TYPE_STRING,
 														G_TYPE_INT);
 	trackList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(trackListStore));
-	titleColumn = gtk_tree_view_column_new_with_attributes("title",gtk_cell_renderer_text_new(),"text",1,NULL);
-	artistColumn = gtk_tree_view_column_new_with_attributes("artist",gtk_cell_renderer_text_new(),"text",2,NULL);
-	albumColumn = gtk_tree_view_column_new_with_attributes("album",gtk_cell_renderer_text_new(),"text",3,NULL);
-	genreColumn = gtk_tree_view_column_new_with_attributes("genre",gtk_cell_renderer_text_new(),"text",4,NULL);
-	durationColumn = gtk_tree_view_column_new_with_attributes("duration",gtk_cell_renderer_text_new(),"text",5,NULL);
-	ratingColumn = gtk_tree_view_column_new_with_attributes("rating",gtk_cell_renderer_text_new(),"text",6,NULL);
+	titleColumn = gtk_tree_view_column_new_with_attributes("title",gtk_cell_renderer_text_new(),"text",TITLE,NULL);
+	gtk_tree_view_column_set_sort_column_id(titleColumn,TITLE);
+	artistColumn = gtk_tree_view_column_new_with_attributes("artist",gtk_cell_renderer_text_new(),"text",ARTIST,NULL);
+	gtk_tree_view_column_set_sort_column_id(artistColumn,ARTIST);
+	albumColumn = gtk_tree_view_column_new_with_attributes("album",gtk_cell_renderer_text_new(),"text",ALBUM,NULL);
+	gtk_tree_view_column_set_sort_column_id(albumColumn,ALBUM);
+	genreColumn = gtk_tree_view_column_new_with_attributes("genre",gtk_cell_renderer_text_new(),"text",GENRE,NULL);
+	gtk_tree_view_column_set_sort_column_id(genreColumn,GENRE);
+	durationColumn = gtk_tree_view_column_new_with_attributes("duration",gtk_cell_renderer_text_new(),"text",DURATION,NULL);
+	gtk_tree_view_column_set_sort_column_id(durationColumn,DURATION);
+	ratingColumn = gtk_tree_view_column_new_with_attributes("rating",gtk_cell_renderer_text_new(),"text",RATING,NULL);
+	gtk_tree_view_column_set_sort_column_id(ratingColumn,RATING);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),titleColumn);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),artistColumn);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(trackList),albumColumn);
