@@ -37,6 +37,7 @@ void drawUI() {
 	windowMenu = gtk_menu_bar_new();
 	windowFooter = gtk_statusbar_new();
 	mainContainerHPane = gtk_hpaned_new();
+	gtk_paned_set_position(GTK_PANED(mainContainerHPane),140);
 	mainSideBarScrollContainer = gtk_scrolled_window_new(NULL, NULL);
 	
 	deviceListStore = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
@@ -138,4 +139,10 @@ void updateTrackList(trackDetails *tDetails) {
 												RATING,tDetails->rating,
 												-1);
 	}
+}
+
+void statusBarLog(const char *message) {
+	guint contextId;
+	contextId = gtk_statusbar_get_context_id(GTK_STATUSBAR(windowFooter),"statusMessage");
+	gtk_statusbar_push(GTK_STATUSBAR(windowFooter),contextId,message);
 }

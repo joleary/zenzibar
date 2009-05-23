@@ -1,8 +1,8 @@
 PROGRAM = zenzibar
 
-LOCAL_LIB_DIR = lib
+LOCAL_LIB_DIR = ./lib
 
-LOCAL_BUILD_DIR = build
+LOCAL_BUILD_DIR = ./build
 
 CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0)
 
@@ -10,21 +10,30 @@ LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
 all: pre-build $(PROGRAM)
 
-zenzibar: main mtpWrapper gtkzenui
-	g++ -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/main.o $(LOCAL_LIB_DIR)/mtpWrapper.o $(LOCAL_LIB_DIR)/gtkzenui.o -o $(LOCAL_BUILD_DIR)/zenzibar
+zenzibar: main mtpWrapper gtkzenui handyStructures
+	@echo -e "\nlinking targets\n"
+	gcc -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/*.o -o $(LOCAL_BUILD_DIR)/zenzibar
 
 pre-build:
+	@echo -e "\nrunning pre-build target\n"
 	@mkdir -p build
 	@mkdir -p lib
 
 main:
-	g++ $(CFLAGS) $(LIBS) -g -c main.c -o $(LOCAL_LIB_DIR)/main.o
+	@echo -e "\ncompiling main\n"
+	gcc $(CFLAGS) $(LIBS) -g -c main.c -o $(LOCAL_LIB_DIR)/main.o
 
-mtpWrapper:
-	g++ $(CFLAGS) $(LIBS) -g -c mtpWrapper.c -o $(LOCAL_LIB_DIR)/mtpWrapper.o
+mtpWrapper: handyStructures
+	@echo -e "\ncompliling mtpWrapper\n"
+	gcc $(CFLAGS) $(LIBS) -g -c mtpWrapper.c -o $(LOCAL_LIB_DIR)/mtpWrapper.o
 
 gtkzenui:
-	g++ $(CFLAGS) $(LIBS) -g -c gtkzenui.c -o $(LOCAL_LIB_DIR)/gtkzenui.o
+	@echo -e "\ncompiling gtkzenui\n"
+	gcc $(CFLAGS) $(LIBS) -g -c gtkzenui.c -o $(LOCAL_LIB_DIR)/gtkzenui.o
+
+handyStructures:
+	@echo -e "\ncompiling handyStructures\n"
+	gcc $(CFLAGS) $(LIBS) -g -c handyStructures.c -o $(LOCAL_LIB_DIR)/handyStructures.o
 
 .PHONY: clean
 clean:

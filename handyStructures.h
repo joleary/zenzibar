@@ -17,4 +17,6 @@ struct TRACKDETAILS {
 	uint32_t duration;
 };
 
+char * stringStore(const char *);
+
 #endif

@@ -1,7 +1,6 @@
 #include <libmtp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <malloc.h>
 #include "handyStructures.h"
 
@@ -25,7 +24,7 @@ struct TRACKMAP {
 /*
  * function prototypes
  */
-void cacheTrack (LIBMTP_track_t *);
+int cacheTrack (LIBMTP_track_t *);
 int clearCache();
 trackDetails * getDetails(uint32_t);
 int initZenLibrary();

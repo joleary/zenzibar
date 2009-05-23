@@ -24,3 +24,4 @@ void addDeviceToDeviceList(int,const char *);
 void updateDeviceListEntry(GtkTreeIter,char *);
 void updateTrackList(trackDetails *tDetails);
 void clearTrackList();
+void statusBarLog(const char *);

@@ -1,6 +1,7 @@
 #include "mtpWrapper.h"
 #include "gtkzenui.h"
 #include "handyStructures.h"
+#include <string.h>
 
 int INITIALISED = 0;
 int CURRENTDEVICENUMBER=-1;
@@ -38,6 +39,7 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 			gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(mainProgressBar),0.1);
 			if(CURRENTDEVICENUMBER!=-1) {
 				cacheTracks((LIBMTP_progressfunc_t)trackCachedProgress);
+				statusBarLog("Caching completed");
 				char *newDeviceString = (char *)calloc(strlen(getDeviceName(deviceNumber)) + 1,sizeof(char));
 				char cacheSizeString[8];
 				sprintf(cacheSizeString," (%d)\0",getCacheSize());
@@ -45,6 +47,7 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 				newDeviceString = (char *)realloc(newDeviceString,sizeof(newDeviceString)+8);
 				strcat(newDeviceString,cacheSizeString);
 				updateDeviceListEntry(iter,newDeviceString);
+				free(newDeviceString);
 				INITIALISED=1;
 			}
 			gtk_widget_hide(mainProgressBar);
@@ -57,13 +60,18 @@ static void connectToDevice(GtkWidget *widget,gpointer data) {
 				temp = temp->next;
 			}
 		}
+		statusBarLog("Connected");
 	}
 }
 
 static void disconnectFromDevice(GtkWidget *widget, gpointer data) {
-	clearCache();
 	clearTrackList();
-	disconnect();
+	clearCache();
+	if(disconnect()==0) {
+		CURRENTDEVICENUMBER  = -1;
+		INITIALISED = 0;
+	}
+	statusBarLog("Disconnected");
 }
 
 static gint deviceListHandler(GtkWidget *widget,GdkEvent *event) {
@@ -91,6 +99,6 @@ int main(int argc, char*argv[]) {
 	g_signal_connect_swapped(G_OBJECT(sidebarDeviceList),"button_press_event",G_CALLBACK(deviceListHandler),devicePopupMenu);
 	populateDeviceList();
 	gtk_main();
-	
+	cleanUpZenLibrary();
 	return 0;
 }

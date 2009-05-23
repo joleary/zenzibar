@@ -9,22 +9,9 @@ trackMap * lastTrack = NULL;
 uint32_t cacheCount = 0;
 
 /*
- * handy function to copy one string to another
- */
-char * stringStore(const char *src) {
-	char *store;
-	if(src!=NULL) {
-		store = strdup(src); 
-	} else {
-		store = strdup("unknown\0");
-	}
-	return store;
-}
-
-/*
  * add a track to the cache at the end of the list
  */
-void cacheTrack (LIBMTP_track_t *track) {
+int cacheTrack (LIBMTP_track_t *track) {
 	if(track!=NULL) {
 		if(track->item_id) {
 			trackMap *temp;
@@ -52,8 +39,11 @@ void cacheTrack (LIBMTP_track_t *track) {
 			}
 			lastTrack = temp;
 			cacheCount++;
+			return 0;
 		}
+		return 1;
 	}
+	return 1;
 }
 
 /*
@@ -71,6 +61,7 @@ int clearCache() {
 		free(rootTrackList);
 		rootTrackList=temp;
 	}
+	rootTrackList=NULL;
 	return 0;
 }
 
@@ -93,24 +84,28 @@ int initZenLibrary() {
 	switch(err) {
 		case LIBMTP_ERROR_NO_DEVICE_ATTACHED:
 			fprintf(stdout,"No devices attached\n");
-			return 0;
+			break;
 		case LIBMTP_ERROR_CONNECTING:
 			fprintf(stderr,"Could not connect to a device\n");
-			return 0;
+			break;
 		case LIBMTP_ERROR_MEMORY_ALLOCATION:
 			fprintf(stderr,"Could not allocate memory for the device(s) attached\n");
-			return 0;
+			break;
 		case LIBMTP_ERROR_NONE:
 			return numRawDevices;
 		case LIBMTP_ERROR_GENERAL:
 		default:
 			fprintf(stderr,"Unknown libtmp error\n");
-			return 0;
+			break;
 	}
+	return 0;
 }
 
 int connectToZen(int deviceNumber) {
 	if(deviceNumber<numRawDevices) {
+		if(device!=NULL) {
+			LIBMTP_Release_Device(device);
+		}
 		device = LIBMTP_Open_Raw_Device(&rawDevices[deviceNumber]);
 		return deviceNumber;
 	} else {
@@ -119,24 +114,26 @@ int connectToZen(int deviceNumber) {
 }
 
 int disconnect() {
-	if(device!=NULL) {
-		LIBMTP_Release_Device(device);
-	}
+	return 0;
 }
 
-int cacheTracks(LIBMTP_progressfunc_t progressFunction) {	
+int cacheTracks(LIBMTP_progressfunc_t progressFunction) {
+	int cachedAmount=0;
 	if(device!=NULL) {
 		LIBMTP_track_t *tracklist;
 		tracklist = LIBMTP_Get_Tracklisting_With_Callback(device,progressFunction,NULL);
 		while(tracklist!=NULL) {
 			LIBMTP_track_t *temp;
-			cacheTrack(tracklist);
+			if(cacheTrack(tracklist)==0) {
+				cachedAmount++;
+			}
 			temp = tracklist;
 			tracklist = tracklist->next;
 			LIBMTP_destroy_track_t(temp);
 		}
+		LIBMTP_destroy_track_t(tracklist);
 	}
-	return cacheCount;
+	return cachedAmount;
 }
 
 int getNumberOfDevices() {
@@ -157,4 +154,9 @@ int getCacheSize() {
 
 trackMap * getCache() {
 	return rootTrackList;
+}
+
+int cleanUpZenLibrary() {
+	LIBMTP_Release_Device(device);
+	free(rawDevices);
 }
