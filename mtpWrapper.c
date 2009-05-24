@@ -33,7 +33,6 @@ int cacheTrack (LIBMTP_track_t *track) {
 			tempTrack->rating = track->rating;
 			temp->details = tempTrack;
 			temp->next = NULL;
-			fprintf(stdout,"Cache number %d\n",temp->uid);
 			if(!rootTrackList) {
 				rootTrackList = temp;
 			} else {
@@ -146,22 +145,20 @@ int cacheTracks(LIBMTP_progressfunc_t progressFunction) {
 folderTree * addFolder(LIBMTP_folder_t *);
 
 folderTree* addFolder(LIBMTP_folder_t *folder) {
-	folderTree *Position = malloc(sizeof(folderTree));
+	folderTree *Position;
 	if(folder->folder_id==0) {
 		return NULL;
 	}
+	Position = malloc(sizeof(folderTree));
 	Position->name = stringStore(folder->name);
-	fprintf(stdout,"%s\n",Position->name);
 	Position->uid = folder->folder_id;
 	Position->parentUid = folder->parent_id;
 	if(folder->child!=NULL) {
-		Position->child = malloc(sizeof(folderTree));
 		Position->child = addFolder(folder->child);
 	} else {
 		Position->child = NULL;
 	}
 	if(folder->sibling!=NULL) {
-		Position->sibling = malloc(sizeof(folderTree));
 		Position->sibling = addFolder(folder->sibling);
 	} else {
 		Position->sibling=NULL;

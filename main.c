@@ -27,6 +27,7 @@ void setupFirstDevice() {
 			hold = temp;
 			temp = hold->next;
 		}
+		gtk_tree_view_set_search_column(GTK_TREE_VIEW(trackList),1);
 	}
 }
 
