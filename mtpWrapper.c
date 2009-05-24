@@ -7,18 +7,19 @@ deviceDetails * details;
 trackMap * rootTrackList = NULL;
 trackMap * lastTrack = NULL;
 uint32_t cacheCount = 0;
+folderTree * rootFolderTree = NULL;
 
 /*
  * add a track to the cache at the end of the list
  */
 int cacheTrack (LIBMTP_track_t *track) {
-	if(track!=NULL) {
+	if(track) {
 		if(track->item_id) {
 			trackMap *temp;
 			trackDetails *tempTrack;
-			temp = (trackMap *)malloc(sizeof(trackMap));
+			temp = malloc(sizeof(trackMap));
 			temp->uid = cacheCount;
-			tempTrack = (trackDetails *)malloc(sizeof(trackDetails));
+			tempTrack = malloc(sizeof(trackDetails));
 			tempTrack->id = track->item_id;
 			tempTrack->parentid = track->parent_id;
 			tempTrack->title = stringStore(track->title);
@@ -32,6 +33,7 @@ int cacheTrack (LIBMTP_track_t *track) {
 			tempTrack->rating = track->rating;
 			temp->details = tempTrack;
 			temp->next = NULL;
+			fprintf(stdout,"Cache number %d\n",temp->uid);
 			if(!rootTrackList) {
 				rootTrackList = temp;
 			} else {
@@ -51,17 +53,19 @@ int cacheTrack (LIBMTP_track_t *track) {
  * pass in the root node to free the entire cache
  */
 int clearCache() {
-	int count=0;
-	trackMap *temp=NULL;
-	while(rootTrackList!=NULL) {
-		if(rootTrackList->details) {
-			free(rootTrackList->details);
+	if(cacheCount!=0) {
+		cacheCount=0;
+		trackMap *temp=NULL;
+		while(rootTrackList!=NULL) {
+			if(rootTrackList->details) {
+				free(rootTrackList->details);
+			}
+			temp = rootTrackList->next;
+			free(rootTrackList);
+			rootTrackList=temp;
 		}
-		temp = rootTrackList->next;
-		free(rootTrackList);
-		rootTrackList=temp;
+		rootTrackList=NULL;
 	}
-	rootTrackList=NULL;
 	return 0;
 }
 
@@ -114,6 +118,9 @@ int connectToZen(int deviceNumber) {
 }
 
 int disconnect() {
+	//if(device) {
+	//	LIBMTP_Release_Device(device);
+	//}
 	return 0;
 }
 
@@ -134,6 +141,50 @@ int cacheTracks(LIBMTP_progressfunc_t progressFunction) {
 		LIBMTP_destroy_track_t(tracklist);
 	}
 	return cachedAmount;
+}
+
+folderTree * addFolder(LIBMTP_folder_t *);
+
+folderTree* addFolder(LIBMTP_folder_t *folder) {
+	folderTree *Position = malloc(sizeof(folderTree));
+	if(folder->folder_id==0) {
+		return NULL;
+	}
+	Position->name = stringStore(folder->name);
+	fprintf(stdout,"%s\n",Position->name);
+	Position->uid = folder->folder_id;
+	Position->parentUid = folder->parent_id;
+	if(folder->child!=NULL) {
+		Position->child = malloc(sizeof(folderTree));
+		Position->child = addFolder(folder->child);
+	} else {
+		Position->child = NULL;
+	}
+	if(folder->sibling!=NULL) {
+		Position->sibling = malloc(sizeof(folderTree));
+		Position->sibling = addFolder(folder->sibling);
+	} else {
+		Position->sibling=NULL;
+	}
+	return Position;
+}
+
+int cacheFolders() {
+	if(device) {
+		rootFolderTree = malloc(sizeof(folderTree));
+		rootFolderTree->name = stringStore(LIBMTP_Get_Friendlyname(device));
+		rootFolderTree->uid=0;
+		rootFolderTree->parentUid=0;
+		rootFolderTree->sibling=NULL;
+		LIBMTP_folder_t *root = LIBMTP_Get_Folder_List(device);
+		if(root!=NULL) {
+			rootFolderTree->child = addFolder(root);
+		} else {
+			rootFolderTree->child=NULL;
+		}
+		LIBMTP_destroy_folder_t(root);
+	}
+	return 0;
 }
 
 int getNumberOfDevices() {
@@ -157,6 +208,20 @@ trackMap * getCache() {
 }
 
 int cleanUpZenLibrary() {
-	LIBMTP_Release_Device(device);
-	free(rawDevices);
+	if(device) {
+		LIBMTP_Release_Device(device);
+	}
+	if(rawDevices) {
+		free(rawDevices);
+	}
+}
+
+void clearFolderCache() {
+	if(rootFolderTree) {
+		free(rootFolderTree);
+	}
+}
+
+folderTree * getRootFolder() {
+	return rootFolderTree;
 }

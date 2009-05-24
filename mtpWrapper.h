@@ -21,10 +21,12 @@ struct TRACKMAP {
 	trackDetails *details;
 	trackMap *next;
 };
+
 /*
  * function prototypes
  */
 int cacheTrack (LIBMTP_track_t *);
+int cacheFolders();
 int clearCache();
 trackDetails * getDetails(uint32_t);
 int initZenLibrary();
@@ -35,3 +37,5 @@ int getNumberOfDevices();
 const char * getDeviceName(int);
 int getCacheSize();
 trackMap * getCache();
+folderTree * getRootFolder();
+void clearFolderCache();

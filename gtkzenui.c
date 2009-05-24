@@ -10,13 +10,9 @@ GtkWidget *mainProgressBar;
 GtkWidget *mainScrollContainer;
 
 GtkWidget *sidebarDeviceList;
-GtkListStore *deviceListStore;
+GtkTreeStore *deviceTreeStore;
 GtkTreeViewColumn *deviceColumn;
 GtkTreeSelection *deviceSelect;
-GtkWidget *devicePopupMenu;
-GtkWidget *devicePopupConnect;
-GtkWidget *devicePopupDisconnect;
-GtkWidget *devicePopupDetails;
 
 
 GtkWidget *trackList;
@@ -40,21 +36,13 @@ void drawUI() {
 	gtk_paned_set_position(GTK_PANED(mainContainerHPane),140);
 	mainSideBarScrollContainer = gtk_scrolled_window_new(NULL, NULL);
 	
-	deviceListStore = gtk_list_store_new(2, G_TYPE_INT, G_TYPE_STRING);
-	sidebarDeviceList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(deviceListStore));
+	deviceTreeStore = gtk_tree_store_new(2, G_TYPE_INT, G_TYPE_STRING);
+	sidebarDeviceList = gtk_tree_view_new_with_model(GTK_TREE_MODEL(deviceTreeStore));
 	deviceColumn = gtk_tree_view_column_new_with_attributes("Devices", gtk_cell_renderer_text_new(), "text", 1, NULL);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(sidebarDeviceList), deviceColumn);
 	deviceSelect = gtk_tree_view_get_selection(GTK_TREE_VIEW(sidebarDeviceList));
 	gtk_tree_selection_set_mode(deviceSelect, GTK_SELECTION_SINGLE);
 	
-	devicePopupMenu = gtk_menu_new();
-	devicePopupConnect = gtk_menu_item_new_with_label("Connect");
-	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupConnect);
-	devicePopupDisconnect = gtk_menu_item_new_with_label("Disconnect");
-	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupDisconnect);
-	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),gtk_separator_menu_item_new());
-	devicePopupDetails = gtk_menu_item_new_with_label("Details");
-	gtk_menu_shell_append(GTK_MENU_SHELL(devicePopupMenu),devicePopupDetails);
 	mainScrollContainer = gtk_scrolled_window_new(NULL,NULL);
 	
 	trackListStore = gtk_list_store_new(TRACK_COLUMNS, G_TYPE_INT,
@@ -111,16 +99,30 @@ void showUI() {
 	gtk_widget_hide(mainProgressBar);
 }
 
-void addDeviceToDeviceList(int dNum,const char *dName) {
-	if(dName!=NULL) {
+
+void addDeviceNode(GtkTreeIter *,folderTree *);
+
+void populateDeviceTree(folderTree *root) {
+	if(root) {
 		GtkTreeIter iter;
-		gtk_list_store_append(deviceListStore,&iter);
-		gtk_list_store_set(deviceListStore,&iter,0,dNum,1,dName,-1);
+		gtk_tree_store_append(deviceTreeStore,&iter,NULL);
+		gtk_tree_store_set(deviceTreeStore,&iter,0,root->uid,1,root->name,-1);
+		if(root->child) {
+			addDeviceNode(&iter,root->child);
+		}
 	}
 }
 
-void updateDeviceListEntry(GtkTreeIter iter,char *newName) {
-	gtk_list_store_set(deviceListStore,&iter,1,newName,-1);
+void addDeviceNode(GtkTreeIter *parentIter,folderTree *node) {
+	GtkTreeIter childIter;
+	gtk_tree_store_append(deviceTreeStore,&childIter,parentIter);
+	gtk_tree_store_set(deviceTreeStore,&childIter,0,node->uid,1,node->name,-1);
+	if(node->child) {
+		addDeviceNode(&childIter,node->child);
+	}
+	if(node->sibling) {
+		addDeviceNode(parentIter,node->sibling);
+	}
 }
 
 void clearTrackList() {
@@ -142,6 +144,7 @@ void updateTrackList(trackDetails *tDetails) {
 }
 
 void statusBarLog(const char *message) {
+	fprintf(stdout,"DEBUG: %s\n",message);
 	guint contextId;
 	contextId = gtk_statusbar_get_context_id(GTK_STATUSBAR(windowFooter),"statusMessage");
 	gtk_statusbar_push(GTK_STATUSBAR(windowFooter),contextId,message);

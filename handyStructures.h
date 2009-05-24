@@ -17,6 +17,16 @@ struct TRACKDETAILS {
 	uint32_t duration;
 };
 
+typedef struct FOLDERTREE folderTree;
+
+struct FOLDERTREE {
+	uint32_t uid;
+	uint32_t parentUid;
+	char *name;
+	folderTree *child;
+	folderTree *sibling;
+};
+
 char * stringStore(const char *);
 
 #endif

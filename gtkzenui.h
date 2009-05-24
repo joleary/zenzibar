@@ -6,11 +6,8 @@ extern GtkWidget *windowMenu;
 extern GtkWidget *windowFooter;
 extern GtkWidget *mainContainerHPane;
 extern GtkWidget *mainSideBarScrollContainer;
+
 extern GtkWidget *sidebarDeviceList;
-extern GtkWidget *devicePopupMenu;
-extern GtkWidget *devicePopupConnect;
-extern GtkWidget *devicePopupDisconnect;
-extern GtkWidget *devicePopupDetails;
 
 extern GtkWidget *mainScrollContainer;
 extern GtkWidget *trackList;
@@ -20,6 +17,7 @@ extern GtkTreeSelection *deviceSelect;
 void drawUI();
 void arrangeUI();
 void showUI();
+void populateDeviceTree(folderTree *);
 void addDeviceToDeviceList(int,const char *);
 void updateDeviceListEntry(GtkTreeIter,char *);
 void updateTrackList(trackDetails *tDetails);
