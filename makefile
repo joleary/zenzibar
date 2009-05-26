@@ -10,9 +10,9 @@ LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
 
 all: pre-build $(PROGRAM)
 
-zenzibar: main mtpWrapper gtkzenui handyStructures
+zenzibar: main mtpWrapper gtkzenui handyStructures musicLibrary
 	@echo -e "\nlinking targets\n"
-	gcc -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/*.o -o $(LOCAL_BUILD_DIR)/zenzibar
+	gcc -pthread -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/*.o -o $(LOCAL_BUILD_DIR)/zenzibar
 
 pre-build:
 	@echo -e "\nrunning pre-build target\n"
@@ -34,6 +34,10 @@ gtkzenui:
 handyStructures:
 	@echo -e "\ncompiling handyStructures\n"
 	gcc $(CFLAGS) $(LIBS) -g -c handyStructures.c -o $(LOCAL_LIB_DIR)/handyStructures.o
+
+musicLibrary:
+	@echo -e "\ncompiling musicLibrary\n"
+	gcc -pthread $(CFLAGS) $(LIBS) -g -c musicLibrary.c -o $(LOCAL_LIB_DIR)/musicLibrary.o
 
 .PHONY: clean
 clean:

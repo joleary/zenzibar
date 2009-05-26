@@ -2,6 +2,7 @@
 #include "gtkzenui.h"
 #include "handyStructures.h"
 #include <string.h>
+#include "musicLibrary.h"
 
 int INITIALISED = 0;
 int CURRENTDEVICENUMBER=-1;
@@ -76,8 +77,12 @@ int main(int argc, char*argv[]) {
 	drawUI();
 	numberofzens = initZenLibrary();
 	g_signal_connect(G_OBJECT(rootWindow),"destroy",G_CALLBACK(quit),NULL);
-	setupFirstDevice();
+	//setupFirstDevice();
+	beginThread();
 	gtk_main();
 	cleanUpZenLibrary();
+	if(pthread_cancel(threadId)==0) {
+		fprintf(stdout,"thread terminated");
+	}
 	return 0;
 }
