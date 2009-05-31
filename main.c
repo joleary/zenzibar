@@ -7,6 +7,10 @@
 int INITIALISED = 0;
 int CURRENTDEVICENUMBER=-1;
 
+static void threadStatus(GtkWidget *widget,gpointer data) {
+	fprintf(stdout,"status is: %s",gtk_label_get_text(GTK_WIDGET(widget)));
+}
+
 static void quit(GtkWidget *widget,gpointer data) {
 	clearCache();
 	clearFolderCache();
@@ -79,6 +83,7 @@ int main(int argc, char*argv[]) {
 	g_signal_connect(G_OBJECT(rootWindow),"destroy",G_CALLBACK(quit),NULL);
 	//setupFirstDevice();
 	beginThread();
+	g_signal_connect(G_OBJECT(messageHandler),"notify::label",G_CALLBACK(threadStatus),NULL);
 	gtk_main();
 	cleanUpZenLibrary();
 	if(pthread_cancel(threadId)==0) {
