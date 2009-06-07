@@ -8,7 +8,6 @@
 
 #define MUSIC_DIR "/home/joleary/Download\0"
 
-GtkWidget *messageHandler;
 /*
  * private protypes only used within the thread
  */
@@ -18,6 +17,7 @@ libraryEntry *rootMusicLibraryEntry = NULL;
 libraryEntry *lastMusicLibraryEntry = NULL;
 long musicLibraryTrackCount=0;
 pthread_t threadId;
+ThreadManager *tm;
 
 /*
  * consider emitting a signal to show the thread is doing somthing
@@ -26,8 +26,13 @@ pthread_t threadId;
  */
 
 int recurseDirs(const char *path) {
-	gtk_label_set_text(GTK_LABEL(messageHandler),"busy");
-	sleep(1);
+	
+	GValue message = {0,};
+	g_value_init(&message,G_TYPE_STRING);
+	g_value_set_string(&message,"busy");
+	g_object_set_property(G_OBJECT(tm),"status", &message);
+	g_value_unset(&message);
+
 	if(path==NULL) {
 		return 1;
 	}
@@ -59,12 +64,12 @@ int recurseDirs(const char *path) {
 						fprintf(stderr,"Error with %s\n",fullPath);
 					}
 				} else {			
-					const char *type = g_file_info_get_attribute_string(finfo,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE);
-					addToIndex(name,fullPath,type,finfo);
-					free(type);
+					const gchar *type = g_file_info_get_attribute_string(finfo,G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE);
+					if(strcmp(type,"audio/mpeg")==0) {
+						addToIndex(name,fullPath,type,finfo);
+					}
 				} 
 				free(fullPath);
-				g_free(name);
 			}
 			finfo = g_file_enumerator_next_file(fileEnumerator,NULL,NULL);	
 		}
@@ -85,11 +90,7 @@ int addToIndex(const char *shortName, const char *fullPath,const char *mimeType,
 		lastMusicLibraryEntry->nextEntry = temp;
 	}
 	lastMusicLibraryEntry = temp;
-	musicLibraryTrackCount++;
-	if(strcmp(mimeType,"audio/mpeg")==0) {
-		fprintf(stdout,"Added %s\n",shortName);
-	}
-	
+	musicLibraryTrackCount++;	
 }
 
 void *searchFiles(void *arg) {
@@ -100,7 +101,13 @@ void *searchFiles(void *arg) {
 		// emit a completed signal
 	} else {
 		fprintf(stdout,"caching error\n");
-		gtk_label_set_text(GTK_LABEL(messageHandler),"idle");
+
+		GValue message = {0,};
+		g_value_init(&message,G_TYPE_STRING);
+		g_value_set_string(&message,"idle");
+		g_object_set_property(G_OBJECT(tm),"status", &message);
+		g_value_unset(&message);
+
 		sleep(10);
 		free(rootMusicLibraryEntry);
 		rootMusicLibraryEntry=NULL;
@@ -111,13 +118,18 @@ void *searchFiles(void *arg) {
 	}
 	fprintf(stdout,"thread exit\n");
 	free(rootMusicLibraryEntry);
-	
-	gtk_label_set_text(GTK_LABEL(messageHandler),"finshed");
+
+	GValue message = {0,};
+	g_value_init(&message,G_TYPE_STRING);
+	g_value_set_string(&message,"finished");
+	g_object_set_property(G_OBJECT(tm),"status", &message);
+	g_value_unset(&message);
+
 	pthread_exit(0);
 }
 
 void beginThread() {
 	int ret;
-	messageHandler = gtk_widget_new(GTK_TYPE_LABEL,"label","created",NULL);
+	tm = g_object_new(THREAD_TYPE_MANAGER,NULL);
 	ret = pthread_create(&threadId,NULL,searchFiles,NULL);
 }

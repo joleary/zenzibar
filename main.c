@@ -7,8 +7,21 @@
 int INITIALISED = 0;
 int CURRENTDEVICENUMBER=-1;
 
-static void threadStatus(GtkWidget *widget,gpointer data) {
-	fprintf(stdout,"status is: %s",gtk_label_get_text(GTK_WIDGET(widget)));
+static void threadStatus(GObject *object,gpointer data) {
+	gdk_threads_enter();
+	GValue message = {0,};
+	g_value_init(&message,G_TYPE_STRING);
+	g_object_get_property(G_OBJECT(tm),"status", &message);
+	const gchar *statusMessage = g_value_get_string(&message);
+	
+	if(strcmp(statusMessage,"busy")==0) {
+		gtk_progress_bar_pulse(GTK_PROGRESS_BAR(mainProgressBar));
+	} else {
+		gtk_widget_hide(mainProgressBar);
+	}
+	g_value_unset(&message);
+	gdk_threads_leave();
+
 }
 
 static void quit(GtkWidget *widget,gpointer data) {
@@ -83,7 +96,9 @@ int main(int argc, char*argv[]) {
 	g_signal_connect(G_OBJECT(rootWindow),"destroy",G_CALLBACK(quit),NULL);
 	//setupFirstDevice();
 	beginThread();
-	g_signal_connect(G_OBJECT(messageHandler),"notify::label",G_CALLBACK(threadStatus),NULL);
+	gtk_widget_show(mainProgressBar);
+	gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(mainProgressBar),0.2);
+	g_signal_connect(G_OBJECT(tm),"status",G_CALLBACK(threadStatus),NULL);
 	gtk_main();
 	cleanUpZenLibrary();
 	if(pthread_cancel(threadId)==0) {

@@ -1,7 +1,8 @@
 #include "handyStructures.h"
+#include "threadManager.h"
 #include <pthread.h>
 
-
+extern ThreadManager *tm;
 
 extern pthread_t threadId;
 
@@ -16,4 +17,3 @@ struct LIBRARYENTRY {
 	libraryEntry *nextEntry;
 };
 
-extern GtkWidget *messageHandler;
