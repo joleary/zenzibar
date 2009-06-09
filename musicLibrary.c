@@ -11,7 +11,7 @@
 /*
  * private protypes only used within the thread
  */
-int recurseDirs(const char *);
+int recurseDirs(const char *,ThreadManager *);
 int addToIndex(const char *,const char *,const char *,GFileInfo *);
 libraryEntry *rootMusicLibraryEntry = NULL;
 libraryEntry *lastMusicLibraryEntry = NULL;
@@ -25,17 +25,18 @@ ThreadManager *tm;
  * so emit at the start of every call 
  */
 
-int recurseDirs(const char *path) {
+int recurseDirs(const char *path, ThreadManager *threadman) {
 	
 	GValue message = {0,};
 	g_value_init(&message,G_TYPE_STRING);
 	g_value_set_string(&message,"busy");
-	g_object_set_property(G_OBJECT(tm),"status", &message);
+	g_object_set_property(G_OBJECT(threadman),"status", &message);
 	g_value_unset(&message);
 
 	if(path==NULL) {
 		return 1;
 	}
+	sleep(1);
 	GFile *dir = g_file_new_for_path(path);
 	GFileEnumerator *fileEnumerator;
 	GError *errorHandler=NULL;
@@ -59,7 +60,7 @@ int recurseDirs(const char *path) {
 				strcat(fullPath,name);
 				
 				if(g_file_info_get_file_type(finfo)==G_FILE_TYPE_DIRECTORY) {
-					int res = recurseDirs(fullPath);
+					int res = recurseDirs(fullPath,threadman);
 					if(res!=0) {
 						fprintf(stderr,"Error with %s\n",fullPath);
 					}
@@ -94,7 +95,8 @@ int addToIndex(const char *shortName, const char *fullPath,const char *mimeType,
 }
 
 void *searchFiles(void *arg) {
-	int res = recurseDirs(MUSIC_DIR);
+	ThreadManager *threadman = (ThreadManager *)arg;
+	int res = recurseDirs(MUSIC_DIR,threadman);
 	if(res==0) {
 		fprintf(stdout,"completed cache\n");
 		// make the index available 
@@ -105,7 +107,7 @@ void *searchFiles(void *arg) {
 		GValue message = {0,};
 		g_value_init(&message,G_TYPE_STRING);
 		g_value_set_string(&message,"idle");
-		g_object_set_property(G_OBJECT(tm),"status", &message);
+		g_object_set_property(G_OBJECT(threadman),"status", &message);
 		g_value_unset(&message);
 
 		sleep(10);
@@ -131,5 +133,5 @@ void *searchFiles(void *arg) {
 void beginThread() {
 	int ret;
 	tm = g_object_new(THREAD_TYPE_MANAGER,NULL);
-	ret = pthread_create(&threadId,NULL,searchFiles,NULL);
+	ret = pthread_create(&threadId,NULL,searchFiles,(void *)tm);
 }
