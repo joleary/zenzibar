@@ -4,15 +4,15 @@ LOCAL_LIB_DIR = ./lib
 
 LOCAL_BUILD_DIR = ./build
 
-CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0)
+CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0 glib-2.0 gthread)
 
-LIBS += $(shell pkg-config --libs libmtp gtk+-2.0)
+LIBS += $(shell pkg-config --libs libmtp gtk+-2.0 glib-2.0 gthread)
 
 all: pre-build $(PROGRAM)
 
 zenzibar: main musicLibrary
 	@echo -e "\nlinking targets\n"
-	gcc -pthread -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/*.o -o $(LOCAL_BUILD_DIR)/zenzibar
+	gcc -g $(CFLAGS) $(LIBS) $(LOCAL_LIB_DIR)/*.o -o $(LOCAL_BUILD_DIR)/zenzibar
 
 pre-build:
 	@echo -e "\nrunning pre-build target\n"
@@ -37,7 +37,7 @@ handyStructures:
 
 musicLibrary: threadManager
 	@echo -e "\ncompiling musicLibrary\n"
-	gcc -pthread $(CFLAGS) $(LIBS) -g -c musicLibrary.c -o $(LOCAL_LIB_DIR)/musicLibrary.o
+	gcc $(CFLAGS) $(LIBS) -g -c musicLibrary.c -o $(LOCAL_LIB_DIR)/musicLibrary.o
 
 threadManager:
 	@echo -e "\ncompiling thread manager\n"

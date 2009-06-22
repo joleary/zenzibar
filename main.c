@@ -2,25 +2,28 @@
 #include "gtkzenui.h"
 #include "handyStructures.h"
 #include <string.h>
+#include <glib-2.0/glib.h>
 #include "musicLibrary.h"
 
 int INITIALISED = 0;
 int CURRENTDEVICENUMBER=-1;
-
+int RUNNING = 0;
 static void threadStatus(GObject *object,gpointer data) {
-	gdk_threads_enter();
 	GValue message = {0,};
 	g_value_init(&message,G_TYPE_STRING);
 	g_object_get_property(G_OBJECT(tm),"status", &message);
 	const gchar *statusMessage = g_value_get_string(&message);
 	
 	if(strcmp(statusMessage,"busy")==0) {
-		gtk_progress_bar_pulse(GTK_PROGRESS_BAR(mainProgressBar));
+		gdk_threads_enter();
+			gtk_progress_bar_pulse(GTK_PROGRESS_BAR(mainProgressBar));
+		gdk_threads_leave();
 	} else {
-		gtk_widget_hide(mainProgressBar);
+		gdk_threads_enter();
+			gtk_widget_hide(mainProgressBar);
+		gdk_threads_leave();
 	}
 	g_value_unset(&message);
-	gdk_threads_leave();
 
 }
 
@@ -28,7 +31,8 @@ static void quit(GtkWidget *widget,gpointer data) {
 	clearCache();
 	clearFolderCache();
 	disconnect();
-	gtk_main_quit();
+	RUNNING=1;
+	//gtk_main_quit();
 }
 
 void setupFirstDevice() {
@@ -99,7 +103,12 @@ int main(int argc, char*argv[]) {
 	gtk_widget_show(mainProgressBar);
 	gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(mainProgressBar),0.2);
 	g_signal_connect(G_OBJECT(tm),"status",G_CALLBACK(threadStatus),NULL);
-	gtk_main();
+	while(RUNNING==0) {
+		while(gtk_events_pending()) {
+			gtk_main_iteration_do(FALSE);
+		}
+	}
+	//gtk_main();
 	cleanUpZenLibrary();
 	if(pthread_cancel(threadId)==0) {
 		fprintf(stdout,"thread terminated");
