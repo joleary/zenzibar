@@ -4,9 +4,9 @@ LOCAL_LIB_DIR = ./lib
 
 LOCAL_BUILD_DIR = ./build
 
-CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0 glib-2.0 gthread)
+CFLAGS += $(shell pkg-config --cflags libmtp gtk+-2.0 glib-2.0 gthread id3tag)
 
-LIBS += $(shell pkg-config --libs libmtp gtk+-2.0 glib-2.0 gthread)
+LIBS += $(shell pkg-config --libs libmtp gtk+-2.0 glib-2.0 gthread id3tag)
 
 all: pre-build $(PROGRAM)
 

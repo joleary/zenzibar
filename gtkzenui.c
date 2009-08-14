@@ -49,7 +49,7 @@ void buildDeviceListWidget();
 void buildDeviceTrackListWidget();
 
 
-void drawUI() {
+void buildUI() {
 	rootWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	rootVBox = gtk_vbox_new(FALSE,0);
 	windowMenu = gtk_menu_bar_new();
@@ -61,11 +61,7 @@ void drawUI() {
 	buildDeviceListWidget();
 	buildMusicLibraryWidget();
 	buildDeviceTrackListWidget();
-	arrangeUI();
-	showUI();
-}
-
-void arrangeUI() {
+	
 	gtk_container_add(GTK_CONTAINER(rootWindow),rootVBox);
 	gtk_box_pack_start(GTK_BOX(rootVBox),windowMenu,FALSE,FALSE,0);
 	gtk_box_pack_start(GTK_BOX(rootVBox),mainContainerHPane,TRUE,TRUE,0);
